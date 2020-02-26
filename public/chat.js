@@ -28,18 +28,22 @@ function changeUsername(){
     socket.emit('change_username',{username: username.value})
 }
 
+function userLeaving(){
+
+}
+
 
 /// socket IO implementation
 
 socket.on('connect', ()=>{
-    socket.emit('room',room)
+    socket.emit('join-room',room)
     var p = document.createElement("P")
     var t = document.createTextNode("You have connected to "+room)
     p.appendChild(t)
     chatroom.append(p)
 })
 
-socket.on("new_message", (data)=>{
+socket.on("message_received", (data)=>{
     console.log(data)
     var pTag = document.createElement("P")
     var text = document.createTextNode(data.username+": "+data.message)
@@ -57,6 +61,20 @@ socket.on('clear', ()=>{
 })
 
 socket.on('userJoined', (data)=>{
+    var p = document.createElement("P")
+    var t = document.createTextNode(data)
+    p.appendChild(t)
+    chatroom.append(p)
+})
+
+socket.on('userLeft', (data)=>{
+    var p = document.createElement("P")
+    var t = document.createTextNode(data)
+    p.appendChild(t)
+    chatroom.append(p)
+})
+
+socket.on('userDisconnect', (data)=>{
     var p = document.createElement("P")
     var t = document.createTextNode(data)
     p.appendChild(t)
