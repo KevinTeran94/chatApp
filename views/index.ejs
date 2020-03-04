@@ -9,10 +9,18 @@
 
   <body>
     <header>
-      <h1 id="room">Super Chat</h1>
+      <h1 id="title" >Super Chat</h1>
     </header>
-    <a href="gaming.ejs">Click here to join the Gaming room</a>
 
+    <select id="rooms" onchange="roomChange()">
+      <option value="Super Chat" selected>Super Chat</option>
+      <option value="Gaming">Gaming</option>
+      <option value="Basketball">Basketball</option>
+      <option value="Politics">Politics</option>
+      <option value="Memes">Memes</option>
+    </select>
+
+    
     <section>
       <div id="change_username">
 	<input id="username" type="text" />

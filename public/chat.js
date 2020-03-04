@@ -1,12 +1,16 @@
 var socket = io.connect('http://localhost:3000');
 
+var title = document.getElementById('title')
 var message = document.getElementById('message');
 var username = document.getElementById('username');
 var send_message = document.getElementById('send_message');
 var send_username = document.getElementById('send_username');
 var chatroom = document.getElementById('chatroom')
 var feedback = document.getElementById('feedback')
-var room = document.getElementById('room').innerHTML
+var room = document.getElementById('rooms')
+var roomsName = () =>{
+    return room.options[room.selectedIndex].value
+}
 
 //user is typing
 function keypress(){
@@ -19,7 +23,7 @@ function onkeyup(){
 }
 
 function newMessage(){
-    socket.emit('new_message',{message : message.value, room: room})
+    socket.emit('new_message',{message : message.value, room: roomsName()})
 }
 
 //emit user name
@@ -28,17 +32,19 @@ function changeUsername(){
     socket.emit('change_username',{username: username.value})
 }
 
-function userLeaving(){
-
+function roomChange(){
+    title.innerHTML = roomsName()
+    console.log("room change")
+    socket.emit('join-room', roomsName() )
 }
+
 
 
 /// socket IO implementation
 
 socket.on('connect', ()=>{
-    socket.emit('join-room',room)
     var p = document.createElement("P")
-    var t = document.createTextNode("You have connected to "+room)
+    var t = document.createTextNode("You have connected to "+roomsName())
     p.appendChild(t)
     chatroom.append(p)
 })

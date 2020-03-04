@@ -67,7 +67,8 @@ const io = require("socket.io")(server)
 
 
 io.on('connection',(socket)=>{
-    
+    socket.join("Super Chat")
+    socket.roomName = "Super Chat"
     socket.username = "Anonymous"
     
     // saving connection event
@@ -76,21 +77,28 @@ io.on('connection',(socket)=>{
 
     console.log('New user connected!')
     
-    socket.on('leave-room',(room)=>{
-        var leaveEvent = new events({eventType: 'leave-room', userName:socket.username, socketID: socket.id, room: room})
-        leaveEvent.save()
-        console.log('leave room event')
-        socket.leave(room)
-        io.sockets.in(room).emit('userLeft', socket.username+ "has left the room")
-    })
-    
-    socket.on('join-room', (room)=>{
+    var joinRoomHelper = (room) => {
+        // join room event and save event to db
         var joinEvent = new events({eventType: 'join-room', userName:socket.username, socketID: socket.id, room: room})
         joinEvent.save()
         console.log("join room event")
         socket.join(room)
         socket.roomName = room;
-        io.sockets.in(room).emit('userJoined','Anonymous joined the room')
+        io.sockets.in(room).emit('userJoined', socket.username+' joined the '+socket.roomName+' room!')
+    };
+
+    joinRoomHelper(socket.roomName)
+
+    socket.on('join-room', (room)=>{
+        const oldRoom = socket.roomName
+        
+        //leave room event and save event to db
+        var leaveEvent = new events({eventType: 'leave-room', userName:socket.username, socketID: socket.id, room: oldRoom})
+        leaveEvent.save()
+        socket.leave(oldRoom)
+        io.sockets.in(oldRoom).emit('userLeft', socket.username+ " has left the room!")
+
+        joinRoomHelper(room)
     })
 
     socket.on('change_username', (data)=>{
@@ -108,7 +116,7 @@ io.on('connection',(socket)=>{
         var receivers = []
         var object = io.sockets.in(data['room']).connected
         for (var key in object){
-            if(object[key].id !== socket.id)
+            if(object[key].id !== socket.id && object[key].roomName === data['room'])
                 receivers.push(object[key].username)
         }
 
